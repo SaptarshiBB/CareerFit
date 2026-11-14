@@ -1,0 +1,56 @@
+@model List<CareerFit.Models.Question>
+@{
+    ViewData["Title"] = "Manage Assessment Questions";
+}
+
+<div class="container-fluid px-lg-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow text-danger"><i class="bi bi-question-circle me-1"></i> Assessment Schema</div>
+            <h1 class="font-serif mb-1">Assessment Questions & Options (@Model.Count)</h1>
+            <p class="text-muted small mb-0">Overview of the 8 evaluation sections (A through H) powering the rule engine.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Admin Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var q in Model)
+        {
+            <div class="col-lg-6">
+                <div class="cf-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-primary small">Order #@q.OrderNumber &bull; @q.SectionKey</span>
+                        <span class="badge bg-light text-muted border small">@q.QuestionType</span>
+                    </div>
+
+                    <h5 class="font-serif mb-1">@q.QuestionText</h5>
+                    @if (!string.IsNullOrEmpty(q.HelpText))
+                    {
+                        <p class="text-muted small mb-3">@q.HelpText</p>
+                    }
+
+                    <div class="mt-3 pt-3 border-top border-subtle">
+                        <span class="text-muted small fw-semibold d-block mb-2">Configured Options (@q.Options.Count):</span>
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var opt in q.Options)
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <span>@opt.OptionText</span>
+                                    <div class="small">
+                                        @if (!string.IsNullOrEmpty(opt.CategoryMapping))
+                                        {
+                                            <span class="badge bg-light text-dark border me-1">@opt.CategoryMapping</span>
+                                        }
+                                        <span class="text-muted">Weight: @opt.ScoreWeight</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

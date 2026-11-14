@@ -1,0 +1,285 @@
+﻿@model CareerFit.Controllers.HomeIndexViewModel
+@{
+    ViewData["Title"] = "Find a Career That Matches Your Potential";
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <div class="section-heading-eyebrow">Data-Driven Career Guidance</div>
+                <h1 class="hero-title">Find a Career That Matches Your Potential.</h1>
+                <p class="hero-subtitle mx-auto">
+                    CareerFit bridges your unique technical aptitudes, academic background, and personal aspirations with industry-verified career opportunities using transparent, explainable recommendations.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-compass me-2"></i> Discover Your Career
+                    </a>
+                    <a asp-controller="Career" asp-action="Index" class="btn btn-outline-primary px-4 py-2">
+                        <i class="bi bi-briefcase me-2"></i> Explore Careers
+                    </a>
+                </div>
+
+                <!-- Trust Metrics -->
+                <div class="row g-3 justify-content-center mt-4 pt-3 border-top border-subtle">
+                    <div class="col-auto px-4">
+                        <span class="d-block fw-bold fs-4 text-primary">@Model.TotalCareersCount+</span>
+                        <span class="text-muted small">Curated Career Profiles</span>
+                    </div>
+                    <div class="col-auto px-4 border-start">
+                        <span class="d-block fw-bold fs-4 text-primary">40+</span>
+                        <span class="text-muted small">Industry Skills Benchmarked</span>
+                    </div>
+                    <div class="col-auto px-4 border-start">
+                        <span class="d-block fw-bold fs-4 text-primary">100%</span>
+                        <span class="text-muted small">Explainable Rule Engine</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Career Categories Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-heading-eyebrow">Browse by Specialization</div>
+            <h2 class="section-title">Explore Industry Career Domains</h2>
+            <p class="section-subtitle mx-auto">
+                Discover distinct professional disciplines spanning high-growth modern engineering, intelligence, design, and executive leadership.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var cat in Model.Categories)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <a asp-controller="Career" asp-action="Index" asp-route-category="@cat.Name" class="category-tile">
+                        <div class="category-icon">
+                            <i class="bi @cat.IconClass"></i>
+                        </div>
+                        <h5 class="mb-2">@cat.Name</h5>
+                        <p class="text-muted small mb-3">@cat.Description</p>
+                        <span class="text-primary small fw-semibold">
+                            Explore Domain <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- How CareerFit Works Section -->
+<section class="py-5" style="background-color: var(--secondary-bg);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-heading-eyebrow">Methodology</div>
+            <h2 class="section-title">How CareerFit Works</h2>
+            <p class="section-subtitle mx-auto">
+                A structured four-step evaluation pipeline converting your educational and technical credentials into an actionable career roadmap.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Step 1 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="cf-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded mb-3" style="width: 48px; height: 48px; font-weight: 700; font-size: 1.25rem;">
+                        1
+                    </div>
+                    <h5 class="mb-2">Create Your Profile</h5>
+                    <p class="text-muted small mb-0">
+                        Record your degrees, field of specialization, cumulative experience level, and preferred work environment.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="cf-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded mb-3" style="width: 48px; height: 48px; font-weight: 700; font-size: 1.25rem;">
+                        2
+                    </div>
+                    <h5 class="mb-2">Complete Assessment</h5>
+                    <p class="text-muted small mb-0">
+                        Navigate our multi-step evaluation covering 8 dimensions: skills, interests, problem-solving, and career goals.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="cf-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded mb-3" style="width: 48px; height: 48px; font-weight: 700; font-size: 1.25rem;">
+                        3
+                    </div>
+                    <h5 class="mb-2">Analyze Your Skills</h5>
+                    <p class="text-muted small mb-0">
+                        Our engine computes exact skill gap breakdowns, matching competencies vs. required prerequisites for target roles.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="cf-card h-100 p-4 text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded mb-3" style="width: 48px; height: 48px; font-weight: 700; font-size: 1.25rem;">
+                        4
+                    </div>
+                    <h5 class="mb-2">Discover Suitable Careers</h5>
+                    <p class="text-muted small mb-0">
+                        Receive your ranked top 5 matches with transparent percentage breakdowns, explainability rationale, and structured learning roadmaps.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Career Paths Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-4">
+            <div>
+                <div class="section-heading-eyebrow">High-Demand Pathways</div>
+                <h2 class="section-title mb-1">Featured Career Profiles</h2>
+                <p class="text-muted small mb-0">Examine requirements, compensation benchmarks, and responsibilities for top roles.</p>
+            </div>
+            <a asp-controller="Career" asp-action="Index" class="btn btn-outline-primary btn-sm mt-3 mt-md-0">
+                View All @Model.TotalCareersCount Careers <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @foreach (var career in Model.FeaturedCareers)
+            {
+                <div class="col-lg-4 col-md-6">
+                    <div class="cf-card h-100 d-flex flex-column">
+                        <div class="cf-card-header d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="badge-tag mb-2">@career.Category</span>
+                                <h5 class="mb-1"><a asp-controller="Career" asp-action="Details" asp-route-id="@career.Id" class="text-decoration-none text-dark">@career.Title</a></h5>
+                            </div>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                @career.DemandLevel Demand
+                            </span>
+                        </div>
+                        <div class="cf-card-body flex-grow-1">
+                            <p class="text-muted small mb-3">@career.Summary</p>
+
+                            <div class="mb-3">
+                                <div class="text-muted small mb-1 fw-semibold">Benchmark Compensation:</div>
+                                <div class="fw-bold text-primary">
+                                    $@career.SalaryMin.ToString("N0") - $@career.SalaryMax.ToString("N0") <span class="small text-muted fw-normal">USD/yr</span>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <div class="text-muted small mb-1 fw-semibold">Experience Level:</div>
+                                <span class="badge bg-light text-dark border">@career.ExperienceLevel</span>
+                                <span class="badge bg-light text-dark border ms-1">@career.WorkEnvironment</span>
+                            </div>
+                        </div>
+                        <div class="p-3 border-top border-color bg-light d-flex justify-content-between align-items-center">
+                            <a asp-controller="Career" asp-action="Details" asp-route-id="@career.Id" class="btn btn-outline-primary btn-sm">
+                                View Profile
+                            </a>
+                            <a asp-controller="Career" asp-action="Compare" asp-route-career1Id="@career.Id" class="text-muted small text-decoration-none">
+                                <i class="bi bi-bar-chart-steps me-1"></i> Compare
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose CareerFit Section -->
+<section class="py-5" style="background-color: var(--secondary-bg);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="section-heading-eyebrow">Our Differentiator</div>
+                <h2 class="section-title">Transparent, Explainable Guidance. Zero Algorithmic Black Boxes.</h2>
+                <p class="text-muted mb-4">
+                    Most automated tools produce arbitrary recommendation scores without explaining why or where you stand. CareerFit employs a rigorous, weighted rule-based architecture built on actual industry job profiles:
+                </p>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-primary fs-4"><i class="bi bi-check-circle-fill"></i></div>
+                    <div>
+                        <h6 class="mb-1">40% Technical Skills Alignment</h6>
+                        <p class="text-muted small mb-0">Evaluates possessed languages, tools, and platforms against specific career-critical and high-priority competencies.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-primary fs-4"><i class="bi bi-check-circle-fill"></i></div>
+                    <div>
+                        <h6 class="mb-1">25% Authentic Interest Mapping</h6>
+                        <p class="text-muted small mb-0">Correlates your passion for systems architecture, exploratory analysis, security, or design with real sector workflows.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-primary fs-4"><i class="bi bi-check-circle-fill"></i></div>
+                    <div>
+                        <h6 class="mb-1">20% Educational Qualification Alignment</h6>
+                        <p class="text-muted small mb-0">Validates academic degree requirements and relevant coursework against career baseline expectations.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <div class="me-3 text-primary fs-4"><i class="bi bi-check-circle-fill"></i></div>
+                    <div>
+                        <h6 class="mb-1">15% Work Preference & Environment Fit</h6>
+                        <p class="text-muted small mb-0">Ensures role expectations align with your preferred remote, hybrid, or on-site collaboration preferences.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="cf-card p-4">
+                    <h5 class="font-serif mb-3">Recommendation Formula Breakdown</h5>
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <code class="text-dark small d-block">
+                            Final Score = (40% &times; Technical Match) + (25% &times; Interest Match) + (20% &times; Education Match) + (15% &times; Work Preference Match)
+                        </code>
+                    </div>
+                    <p class="text-muted small mb-4">
+                        Every percentage score displayed on your dashboard is 100% auditable and reproducible. No secret weights, no sponsored career biases.
+                    </p>
+
+                    <div class="d-grid">
+                        <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary">
+                            Take Your Free Assessment Today
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA Section -->
+<section class="py-5 text-center">
+    <div class="container py-4">
+        <h2 class="section-title mb-3">Ready to Make an Informed Career Decision?</h2>
+        <p class="section-subtitle mx-auto mb-4">
+            Create your candidate profile, take our comprehensive 8-stage assessment, and access personalized learning roadmaps built for your goals.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary px-4 py-2">
+                Create Free Candidate Account
+            </a>
+            <a asp-controller="Home" asp-action="HowItWorks" class="btn btn-outline-primary px-4 py-2">
+                Learn More About Our Method
+            </a>
+        </div>
+    </div>
+</section>

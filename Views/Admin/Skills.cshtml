@@ -1,0 +1,87 @@
+@model List<CareerFit.Models.Skill>
+@{
+    ViewData["Title"] = "Manage Skills Database";
+}
+
+<div class="container-fluid px-lg-4 py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow text-danger"><i class="bi bi-tools me-1"></i> Competency Database</div>
+            <h1 class="font-serif mb-1">Industry Skills Directory (@Model.Count)</h1>
+            <p class="text-muted small mb-0">Manage technical technologies, frameworks, languages, and soft skills.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Add Skill Form -->
+        <div class="col-lg-4">
+            <div class="cf-card p-4">
+                <h5 class="font-serif mb-3"><i class="bi bi-plus-circle me-1 text-primary"></i> Add New Skill</h5>
+                <form asp-action="SkillCreate" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label">Skill Name</label>
+                        <input type="text" name="Name" class="form-control" placeholder="e.g. GraphQL, Flutter" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="Category" class="form-select" required>
+                            <option value="Technical">Technical</option>
+                            <option value="Soft">Soft</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea name="Description" class="form-control" rows="3" placeholder="Brief technical summary..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        Create Skill Record
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Skills List -->
+        <div class="col-lg-8">
+            <div class="cf-card p-4">
+                <div class="table-responsive">
+                    <table class="table table-careerfit mb-0">
+                        <thead>
+                            <tr>
+                                <th>Skill Name</th>
+                                <th>Category</th>
+                                <th>Associated Careers</th>
+                                <th>Description</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@s.Name</td>
+                                    <td><span class="badge @(s.Category == "Technical" ? "bg-primary" : "bg-info") small">@s.Category</span></td>
+                                    <td><span class="badge bg-light text-muted border small">@s.CareerSkills.Count Roles</span></td>
+                                    <td class="small text-muted text-truncate" style="max-width: 200px;">@s.Description</td>
+                                    <td class="text-end">
+                                        <form asp-action="SkillDelete" asp-route-id="@s.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete skill @s.Name?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" title="Delete Skill">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

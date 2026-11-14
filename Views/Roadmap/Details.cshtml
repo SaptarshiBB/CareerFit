@@ -1,0 +1,180 @@
+@model CareerFit.ViewModels.RoadmapDetailViewModel
+@{
+    ViewData["Title"] = $"{Model.Roadmap.TargetRole} - Learning Roadmap";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Header -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Roadmaps</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Roadmap.TargetRole</li>
+        </ol>
+    </nav>
+
+    <div class="cf-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <span class="badge-tag mb-2">@(Model.Roadmap.Career?.Category ?? "Technology")</span>
+                <h1 class="font-serif mb-1">@Model.Roadmap.TargetRole Learning Roadmap</h1>
+                <p class="text-muted small mb-0">@Model.Roadmap.Summary</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="p-3 bg-light rounded border d-inline-block text-start w-100" style="max-width: 280px;">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Milestone Progress</span>
+                        <span class="fw-bold text-success">@Model.CompletedCount of @Model.TotalCount Completed</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: @Model.ProgressPercentage%;" aria-valuenow="@Model.ProgressPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="small fw-bold text-primary mt-1 text-end">@Model.ProgressPercentage%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The 3 Stages: Beginner, Intermediate, Advanced -->
+    <div class="row g-4">
+        <div class="col-lg-12">
+            <!-- Stage 1: Beginner -->
+            <div class="cf-card mb-4 p-4">
+                <div class="roadmap-stage-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary me-2">Stage 1</span>
+                        <span class="fs-5 font-serif text-primary">Beginner Stage &bull; Core Foundations</span>
+                    </div>
+                    <span class="text-muted small">Prerequisites & Syntactical Fluency</span>
+                </div>
+
+                @foreach (var m in Model.BeginnerMilestones)
+                {
+                    <div class="milestone-item @(m.IsCompleted ? "completed" : "")">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <h6 class="font-serif mb-1 @(m.IsCompleted ? "text-decoration-line-through text-muted" : "text-dark")">
+                                    @m.Title
+                                </h6>
+                                <p class="text-muted small mb-2">@m.Description</p>
+                            </div>
+
+                            <form asp-action="ToggleMilestone" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="milestoneId" value="@m.Id" />
+                                <input type="hidden" name="roadmapId" value="@Model.Roadmap.Id" />
+                                <button type="submit" class="btn btn-sm @(m.IsCompleted ? "btn-success" : "btn-outline-secondary")">
+                                    <i class="bi @(m.IsCompleted ? "bi-check2-square" : "bi-square") me-1"></i>
+                                    @(m.IsCompleted ? "Completed" : "Mark as Done")
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border small">
+                            <div class="mb-1">
+                                <strong class="text-primary"><i class="bi bi-cpu me-1"></i> Recommended Skills:</strong>
+                                <span class="text-muted">@m.RecommendedSkills</span>
+                            </div>
+                            <div>
+                                <strong class="text-primary"><i class="bi bi-hammer me-1"></i> Suggested Real-World Project:</strong>
+                                <span class="text-muted">@m.SuggestedProjects</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Stage 2: Intermediate -->
+            <div class="cf-card mb-4 p-4">
+                <div class="roadmap-stage-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary me-2">Stage 2</span>
+                        <span class="fs-5 font-serif text-primary">Intermediate Stage &bull; Application Engineering</span>
+                    </div>
+                    <span class="text-muted small">APIs, Persistence & Integration Testing</span>
+                </div>
+
+                @foreach (var m in Model.IntermediateMilestones)
+                {
+                    <div class="milestone-item @(m.IsCompleted ? "completed" : "")">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <h6 class="font-serif mb-1 @(m.IsCompleted ? "text-decoration-line-through text-muted" : "text-dark")">
+                                    @m.Title
+                                </h6>
+                                <p class="text-muted small mb-2">@m.Description</p>
+                            </div>
+
+                            <form asp-action="ToggleMilestone" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="milestoneId" value="@m.Id" />
+                                <input type="hidden" name="roadmapId" value="@Model.Roadmap.Id" />
+                                <button type="submit" class="btn btn-sm @(m.IsCompleted ? "btn-success" : "btn-outline-secondary")">
+                                    <i class="bi @(m.IsCompleted ? "bi-check2-square" : "bi-square") me-1"></i>
+                                    @(m.IsCompleted ? "Completed" : "Mark as Done")
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border small">
+                            <div class="mb-1">
+                                <strong class="text-primary"><i class="bi bi-cpu me-1"></i> Recommended Skills:</strong>
+                                <span class="text-muted">@m.RecommendedSkills</span>
+                            </div>
+                            <div>
+                                <strong class="text-primary"><i class="bi bi-hammer me-1"></i> Suggested Real-World Project:</strong>
+                                <span class="text-muted">@m.SuggestedProjects</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Stage 3: Advanced -->
+            <div class="cf-card mb-4 p-4">
+                <div class="roadmap-stage-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary me-2">Stage 3</span>
+                        <span class="fs-5 font-serif text-primary">Advanced Stage &bull; Production Scale & Architecture</span>
+                    </div>
+                    <span class="text-muted small">Cloud Delivery, Observability & Capstone</span>
+                </div>
+
+                @foreach (var m in Model.AdvancedMilestones)
+                {
+                    <div class="milestone-item @(m.IsCompleted ? "completed" : "")">
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                            <div>
+                                <h6 class="font-serif mb-1 @(m.IsCompleted ? "text-decoration-line-through text-muted" : "text-dark")">
+                                    @m.Title
+                                </h6>
+                                <p class="text-muted small mb-2">@m.Description</p>
+                            </div>
+
+                            <form asp-action="ToggleMilestone" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="milestoneId" value="@m.Id" />
+                                <input type="hidden" name="roadmapId" value="@Model.Roadmap.Id" />
+                                <button type="submit" class="btn btn-sm @(m.IsCompleted ? "btn-success" : "btn-outline-secondary")">
+                                    <i class="bi @(m.IsCompleted ? "bi-check2-square" : "bi-square") me-1"></i>
+                                    @(m.IsCompleted ? "Completed" : "Mark as Done")
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border small">
+                            <div class="mb-1">
+                                <strong class="text-primary"><i class="bi bi-cpu me-1"></i> Recommended Skills:</strong>
+                                <span class="text-muted">@m.RecommendedSkills</span>
+                            </div>
+                            <div>
+                                <strong class="text-primary"><i class="bi bi-hammer me-1"></i> Suggested Real-World Project:</strong>
+                                <span class="text-muted">@m.SuggestedProjects</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

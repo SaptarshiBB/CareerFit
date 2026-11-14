@@ -1,0 +1,149 @@
+@model CareerFit.ViewModels.CareerEditViewModel
+@{
+    ViewData["Title"] = $"Edit Career - {Model.Title}";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+                <div>
+                    <div class="section-heading-eyebrow text-danger">Administration</div>
+                    <h2 class="font-serif mb-0">Edit Career: @Model.Title</h2>
+                </div>
+                <a asp-action="Careers" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Careers
+                </a>
+            </div>
+
+            <form asp-action="CareerEdit" method="post" class="cf-card p-4">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-3"></div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-7">
+                        <label asp-for="Title" class="form-label">Career Title</label>
+                        <input asp-for="Title" class="form-control" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-5">
+                        <label asp-for="Category" class="form-label">Category</label>
+                        <select asp-for="Category" class="form-select" required>
+                            @foreach (var cat in Model.AvailableCategories)
+                            {
+                                if (Model.Category == cat)
+                                {
+                                    <option value="@cat" selected>@cat</option>
+                                }
+                                else
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Summary" class="form-label">Summary Brief</label>
+                        <input asp-for="Summary" class="form-control" required />
+                        <span asp-validation-for="Summary" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Detailed Role Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Responsibilities" class="form-label">Key Responsibilities (Bullet points)</label>
+                        <textarea asp-for="Responsibilities" class="form-control" rows="4" required></textarea>
+                    </div>
+                </div>
+
+                <h5 class="font-serif text-primary border-bottom border-subtle pb-2 mb-3">Qualifications & Seniority</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="RequiredEducation" class="form-label">Required Education</label>
+                        <input asp-for="RequiredEducation" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ExperienceLevel" class="form-label">Experience Seniority</label>
+                        <select asp-for="ExperienceLevel" class="form-select">
+                            <option value="Entry-Level" selected="@(Model.ExperienceLevel == "Entry-Level")">Entry-Level (0-2 yrs)</option>
+                            <option value="Mid-Level" selected="@(Model.ExperienceLevel == "Mid-Level")">Mid-Level (3-5 yrs)</option>
+                            <option value="Senior" selected="@(Model.ExperienceLevel == "Senior")">Senior (5+ yrs)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ExperienceRequirements" class="form-label">Experience Specifications</label>
+                        <input asp-for="ExperienceRequirements" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="WorkEnvironment" class="form-label">Work Environment</label>
+                        <select asp-for="WorkEnvironment" class="form-select">
+                            <option value="Hybrid" selected="@(Model.WorkEnvironment == "Hybrid")">Hybrid</option>
+                            <option value="Remote" selected="@(Model.WorkEnvironment == "Remote")">Remote</option>
+                            <option value="On-site" selected="@(Model.WorkEnvironment == "On-site")">On-site</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="SuggestedLearningTopics" class="form-label">Suggested Learning Topics</label>
+                        <input asp-for="SuggestedLearningTopics" class="form-control" required />
+                    </div>
+                </div>
+
+                <h5 class="font-serif text-primary border-bottom border-subtle pb-2 mb-3">Compensation & Market Demand</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <label asp-for="SalaryMin" class="form-label">Min Benchmark Salary ($ USD)</label>
+                        <input asp-for="SalaryMin" class="form-control" type="number" step="1000" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="SalaryMax" class="form-label">Max Benchmark Salary ($ USD)</label>
+                        <input asp-for="SalaryMax" class="form-control" type="number" step="1000" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="DemandLevel" class="form-label">Demand Level</label>
+                        <select asp-for="DemandLevel" class="form-select">
+                            <option value="Very High" selected="@(Model.DemandLevel == "Very High")">Very High</option>
+                            <option value="High" selected="@(Model.DemandLevel == "High")">High</option>
+                            <option value="Moderate" selected="@(Model.DemandLevel == "Moderate")">Moderate</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="GrowthOpportunities" class="form-label">Growth & Advancement Paths</label>
+                        <input asp-for="GrowthOpportunities" class="form-control" required />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label small fw-semibold">Career Profile is Active & Discoverable</label>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="font-serif text-primary border-bottom border-subtle pb-2 mb-3">Mapped Prerequisite Skills</h5>
+                <div class="mb-4">
+                    <label class="form-label small text-muted">Select all skills required or valued for this role:</label>
+                    <div class="row g-2" style="max-height: 220px; overflow-y: auto;">
+                        @foreach (var s in Model.AvailableSkills)
+                        {
+                            bool isChecked = Model.SelectedSkillIds.Contains(s.Id);
+                            <div class="col-md-4 col-sm-6">
+                                <div class="form-check">
+                                    <input type="checkbox" name="selectedSkillIds" value="@s.Id" class="form-check-input" id="skill_@s.Id" @(isChecked ? "checked" : "") />
+                                    <label class="form-check-label small" for="skill_@s.Id">@s.Name (@s.Category)</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 pt-3 border-top border-color">
+                    <a asp-action="Careers" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i> Update Career Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

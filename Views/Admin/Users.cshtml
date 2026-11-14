@@ -1,0 +1,48 @@
+@model List<CareerFit.Models.ApplicationUser>
+@{
+    ViewData["Title"] = "User Management Registry";
+}
+
+<div class="container-fluid px-lg-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow text-danger"><i class="bi bi-people me-1"></i> User Registry</div>
+            <h1 class="font-serif mb-1">Registered User Accounts (@Model.Count)</h1>
+            <p class="text-muted small mb-0">Inspect candidate profiles, account timestamps, and education credentials.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <div class="cf-card p-4">
+        <div class="table-responsive">
+            <table class="table table-careerfit mb-0">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email / Username</th>
+                        <th>Education Credential</th>
+                        <th>Experience Level</th>
+                        <th>Preferred Environment</th>
+                        <th>Registered Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        var profile = u.CandidateProfile;
+                        <tr>
+                            <td class="fw-semibold">@u.FullName</td>
+                            <td><code>@u.Email</code></td>
+                            <td>@(profile != null ? $"{profile.HighestEducation} ({profile.Degree})" : "Profile Not Initialized")</td>
+                            <td><span class="badge bg-light text-dark border">@(profile?.ExperienceLevel ?? "Entry-Level")</span></td>
+                            <td>@(profile?.PreferredWorkEnvironment ?? "Hybrid")</td>
+                            <td class="text-muted small">@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

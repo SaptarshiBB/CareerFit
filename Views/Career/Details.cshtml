@@ -1,0 +1,201 @@
+@model CareerFit.ViewModels.CareerDetailViewModel
+@{
+    ViewData["Title"] = $"{Model.Career.Title} - Career Profile & Requisites";
+    var career = Model.Career;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb & Top Bar -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Careers</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@career.Title</li>
+        </ol>
+    </nav>
+
+    <!-- Career Title Header -->
+    <div class="cf-card p-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <span class="badge-tag mb-2">@career.Category</span>
+                <h1 class="font-serif mb-2">@career.Title</h1>
+                <p class="lead text-muted fs-6 mb-3">@career.Summary</p>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="badge bg-light text-dark border"><i class="bi bi-briefcase me-1"></i> @career.ExperienceLevel</span>
+                    <span class="badge bg-light text-dark border"><i class="bi bi-laptop me-1"></i> @career.WorkEnvironment</span>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-graph-up me-1"></i> @career.DemandLevel Demand</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons & Matching Score -->
+            <div class="text-md-end">
+                @if (Model.PersonalMatch != null)
+                {
+                    <div class="mb-3">
+                        <span class="text-muted small d-block">Your Compatibility:</span>
+                        <span class="badge-score">@Model.PersonalMatch.OverallScore.ToString("F0")% Match</span>
+                    </div>
+                }
+
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="SavedCareer" asp-action="Toggle" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="careerId" value="@career.Id" />
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
+                            <button type="submit" class="btn @(Model.IsBookmarked ? "btn-outline-danger" : "btn-outline-secondary") btn-sm">
+                                <i class="bi @(Model.IsBookmarked ? "bi-bookmark-check-fill" : "bi-bookmark") me-1"></i>
+                                @(Model.IsBookmarked ? "Saved in Bookmarks" : "Bookmark Role")
+                            </button>
+                        </form>
+
+                        <a asp-controller="SkillGap" asp-action="Index" asp-route-careerId="@career.Id" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-graph-up-arrow me-1"></i> Skill Gap
+                        </a>
+
+                        @if (Model.HasRoadmap && Model.ExistingRoadmapId.HasValue)
+                        {
+                            <a asp-controller="Roadmap" asp-action="Details" asp-route-id="@Model.ExistingRoadmapId.Value" class="btn btn-primary btn-sm">
+                                <i class="bi bi-map me-1"></i> View My Roadmap
+                            </a>
+                        }
+                        else
+                        {
+                            <form asp-controller="Roadmap" asp-action="Generate" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="careerId" value="@career.Id" />
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="bi bi-compass me-1"></i> Generate Roadmap
+                                </button>
+                            </form>
+                        }
+                    }
+                    else
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-sm">
+                            Sign In for Matching & Roadmap
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Columns -->
+    <div class="row g-4">
+        <!-- Left: Detailed Specifications -->
+        <div class="col-lg-8">
+            <!-- Overview & Description -->
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">Role Description & Context</h4>
+                <p class="text-muted" style="line-height: 1.7;">@career.Description</p>
+            </div>
+
+            <!-- Key Responsibilities -->
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">Core Responsibilities</h4>
+                <div class="text-muted" style="white-space: pre-line; line-height: 1.7;">
+                    @career.Responsibilities
+                </div>
+            </div>
+
+            <!-- Required Skills Breakdown -->
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">Required & Recommended Competencies</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold text-primary mb-2"><i class="bi bi-cpu me-1"></i> Technical Skills</h6>
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var cs in career.CareerSkills.Where(s => s.Skill?.Category == "Technical"))
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <span>@cs.Skill?.Name</span>
+                                    <div>
+                                        <span class="badge @(cs.IsRequired ? "badge-required" : "bg-light text-muted border") small">
+                                            @(cs.IsRequired ? "Required" : "Preferred")
+                                        </span>
+                                        <span class="badge bg-light text-dark border small ms-1">@cs.MinProficiency</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold text-primary mb-2"><i class="bi bi-people me-1"></i> Soft & Workplace Competencies</h6>
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var cs in career.CareerSkills.Where(s => s.Skill?.Category == "Soft"))
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <span>@cs.Skill?.Name</span>
+                                    <span class="badge bg-light text-dark border small">@cs.MinProficiency</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Growth Opportunities -->
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">Career Progression & Growth Paths</h4>
+                <p class="text-muted mb-0" style="line-height: 1.7;">@career.GrowthOpportunities</p>
+            </div>
+        </div>
+
+        <!-- Right: Requirements, Compensation, Related Roles -->
+        <div class="col-lg-4">
+            <!-- Compensation Benchmark Card -->
+            <div class="cf-card mb-4 p-4">
+                <h5 class="font-serif mb-2"><i class="bi bi-cash-stack me-1 text-primary"></i> Compensation Benchmark</h5>
+                <div class="fw-bold fs-3 text-primary mb-1">
+                    $@career.SalaryMin.ToString("N0") - $@career.SalaryMax.ToString("N0")
+                </div>
+                <div class="small text-muted mb-3">USD Annual Gross Benchmark</div>
+                <div class="p-2 bg-light rounded border small text-muted">
+                    <i class="bi bi-info-circle me-1"></i> @career.SalaryNotes
+                </div>
+            </div>
+
+            <!-- Qualification & Experience -->
+            <div class="cf-card mb-4 p-4">
+                <h5 class="font-serif mb-3"><i class="bi bi-check2-circle me-1 text-primary"></i> Baseline Qualifications</h5>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1 fw-semibold">Required Education</span>
+                    <span class="small text-dark">@career.RequiredEducation</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted small d-block mb-1 fw-semibold">Experience Requirements</span>
+                    <span class="small text-dark">@career.ExperienceRequirements</span>
+                </div>
+
+                <div>
+                    <span class="text-muted small d-block mb-1 fw-semibold">Suggested Learning Topics</span>
+                    <div class="small text-dark">@career.SuggestedLearningTopics</div>
+                </div>
+            </div>
+
+            <!-- Related Careers -->
+            @if (Model.RelatedCareers.Any())
+            {
+                <div class="cf-card mb-4 p-4">
+                    <h5 class="font-serif mb-3">Related Career Pathways</h5>
+                    <div class="list-group list-group-flush">
+                        @foreach (var rel in Model.RelatedCareers)
+                        {
+                            <a asp-action="Details" asp-route-id="@rel.Id" class="list-group-item list-group-item-action px-0">
+                                <div class="fw-semibold text-primary">@rel.Title</div>
+                                <div class="small text-muted">
+                                    $@rel.SalaryMin.ToString("N0") - $@rel.SalaryMax.ToString("N0") &bull; @rel.ExperienceLevel
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

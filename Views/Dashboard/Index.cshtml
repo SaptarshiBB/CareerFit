@@ -1,0 +1,332 @@
+@model CareerFit.ViewModels.UserDashboardViewModel
+@{
+    ViewData["Title"] = "Candidate Dashboard Overview";
+}
+
+<div class="container-fluid px-lg-4 py-4">
+    <div class="row g-4">
+        <!-- Dashboard Sidebar -->
+        <div class="col-lg-3 col-xl-2">
+            <div class="cf-card p-3 mb-4">
+                <div class="text-center pb-3 mb-3 border-bottom border-color">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded mb-2" style="width: 44px; height: 44px; font-weight: 700; font-family: var(--font-heading); font-size: 1.25rem;">
+                        @(Model.User.FullName.Length > 0 ? Model.User.FullName[0].ToString() : "C")
+                    </span>
+                    <h6 class="font-serif mb-0 text-truncate">@Model.User.FullName</h6>
+                    <span class="badge bg-light text-muted border small mt-1">@(Model.Profile?.ExperienceLevel ?? "Candidate")</span>
+                </div>
+
+                <nav class="nav flex-column">
+                    <a asp-action="Index" class="sidebar-nav-item active">
+                        <i class="bi bi-grid-fill"></i> Overview
+                    </a>
+                    <a asp-controller="Profile" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-person-circle"></i> My Profile
+                    </a>
+                    <a asp-controller="Assessment" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-clipboard2-check"></i> Career Assessment
+                    </a>
+                    <a asp-controller="Recommendation" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-stars"></i> Recommendations
+                    </a>
+                    <a asp-controller="SkillGap" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-graph-up-arrow"></i> Skill Gap Analysis
+                    </a>
+                    <a asp-controller="Roadmap" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-map"></i> Career Roadmap
+                    </a>
+                    <a asp-controller="SavedCareer" asp-action="Index" class="sidebar-nav-item">
+                        <i class="bi bi-bookmark"></i> Saved Careers (@Model.SavedCareers.Count)
+                    </a>
+                    <a asp-controller="Profile" asp-action="Edit" class="sidebar-nav-item">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                    <hr class="my-2 border-color" />
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="sidebar-nav-item text-danger border-0 bg-transparent w-100 text-start">
+                            <i class="bi bi-box-arrow-right text-danger"></i> Sign Out
+                        </button>
+                    </form>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Workspace -->
+        <div class="col-lg-9 col-xl-10">
+            <!-- Welcome Banner & Profile Status -->
+            <div class="cf-card p-4 mb-4">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-7">
+                        <div class="section-heading-eyebrow">Personalized Candidate Portal</div>
+                        <h2 class="font-serif mb-1">Welcome back, @Model.User.FullName</h2>
+                        <p class="text-muted small mb-0">
+                            Here is an executive overview of your career compatibility evaluations and roadmap progress.
+                        </p>
+                    </div>
+                    <div class="col-md-5 text-md-end">
+                        <div class="d-inline-block text-start p-2 px-3 bg-light rounded border">
+                            <span class="text-muted small d-block">Profile Completion</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="width: 120px; height: 6px;">
+                                    <div class="progress-bar bg-primary" style="width: @Model.ProfileCompletionPercentage%;"></div>
+                                </div>
+                                <span class="fw-bold small text-primary">@Model.ProfileCompletionPercentage%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metric Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="cf-card p-3 h-100">
+                        <span class="text-muted small d-block mb-1">Top Recommended Role</span>
+                        <div class="fw-bold fs-6 text-primary text-truncate">
+                            @(Model.TopRecommendation != null ? Model.TopRecommendation.Career.Title : "Assessment Pending")
+                        </div>
+                        <span class="badge-score fs-5">
+                            @(Model.TopRecommendation != null ? $"{Model.TopRecommendation.OverallScore:F0}% Match" : "--")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="cf-card p-3 h-100">
+                        <span class="text-muted small d-block mb-1">Assessments Completed</span>
+                        <div class="fw-bold fs-4 text-primary font-serif">
+                            @Model.AssessmentHistory.Count
+                        </div>
+                        <span class="small text-muted">
+                            @(Model.LatestAssessment?.CompletedAt != null ? $"Latest: {Model.LatestAssessment.CompletedAt:MMM dd, yyyy}" : "None recorded")
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="cf-card p-3 h-100">
+                        <span class="text-muted small d-block mb-1">Active Roadmaps</span>
+                        <div class="fw-bold fs-4 text-primary font-serif">
+                            @Model.ActiveRoadmaps.Count
+                        </div>
+                        <span class="small text-muted">Avg Progress: @Model.AverageRoadmapProgress%</span>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                    <div class="cf-card p-3 h-100">
+                        <span class="text-muted small d-block mb-1">Saved Bookmarks</span>
+                        <div class="fw-bold fs-4 text-primary font-serif">
+                            @Model.SavedCareers.Count
+                        </div>
+                        <span class="small text-muted">Target career paths</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Career Recommendation Highlight -->
+            @if (Model.TopRecommendation != null)
+            {
+                <div class="cf-card mb-4 p-4 border-primary">
+                    <div class="row align-items-center g-4">
+                        <div class="col-lg-8">
+                            <span class="badge bg-primary px-3 py-1 mb-2">Top Recommendation</span>
+                            <h3 class="font-serif mb-1">@Model.TopRecommendation.Career.Title</h3>
+                            <p class="text-muted small mb-2">@Model.TopRecommendation.Career.Summary</p>
+
+                            <div class="p-3 bg-light rounded border small mb-3">
+                                <span class="fw-semibold text-primary d-block mb-1"><i class="bi bi-lightbulb me-1"></i> Match Rationale:</span>
+                                @Model.TopRecommendation.Explanation
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <a asp-controller="Career" asp-action="Details" asp-route-id="@Model.TopRecommendation.Career.Id" class="btn btn-primary btn-sm">
+                                    View Full Career Specifications
+                                </a>
+                                <a asp-controller="SkillGap" asp-action="Index" asp-route-careerId="@Model.TopRecommendation.Career.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> Analyze Skill Gaps
+                                </a>
+                                <form asp-controller="Roadmap" asp-action="Generate" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="careerId" value="@Model.TopRecommendation.Career.Id" />
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-map me-1"></i> Open Learning Roadmap
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 text-center border-start-lg border-color ps-lg-4">
+                            <div class="badge-score display-4">@Model.TopRecommendation.OverallScore.ToString("F0")%</div>
+                            <span class="text-muted small d-block mb-3">Weighted Compatibility Score</span>
+                            <div class="p-2 bg-light rounded border small text-muted">
+                                40% Skills &bull; 25% Interests &bull; 20% Education &bull; 15% Work Preference
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="cf-card p-4 mb-4 text-center">
+                    <i class="bi bi-compass fs-2 text-primary d-block mb-2"></i>
+                    <h4 class="font-serif">No Career Recommendations Generated Yet</h4>
+                    <p class="text-muted small mb-3">
+                        Complete your 8-stage career evaluation or fill in your skills profile to generate precision-weighted recommendations.
+                    </p>
+                    <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary btn-sm">
+                        <i class="bi bi-clipboard2-check me-1"></i> Start Assessment Now
+                    </a>
+                </div>
+            }
+
+            <!-- Bottom Row: Top Recommendations & Missing Skills -->
+            <div class="row g-4 mb-4">
+                <!-- Ranked Career List -->
+                <div class="col-lg-7">
+                    <div class="cf-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-serif mb-0"><i class="bi bi-stars me-1 text-primary"></i> Top Ranked Careers</h5>
+                            <a asp-controller="Recommendation" asp-action="Index" class="small text-decoration-none">View All</a>
+                        </div>
+
+                        @if (Model.Top5Recommendations.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var rec in Model.Top5Recommendations)
+                                {
+                                    <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="badge bg-light text-muted border small me-1">#@rec.Rank</span>
+                                            <a asp-controller="Career" asp-action="Details" asp-route-id="@rec.Career.Id" class="fw-semibold text-primary text-decoration-none">
+                                                @rec.Career.Title
+                                            </a>
+                                            <span class="text-muted small d-block">
+                                                @rec.Career.Category &bull; $@rec.Career.SalaryMin.ToString("N0") - $@rec.Career.SalaryMax.ToString("N0")
+                                            </span>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge-score fs-6">@rec.OverallScore.ToString("F0")%</span>
+                                            <span class="small text-muted d-block">Match</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">Take your assessment to populate your ranked career opportunities.</p>
+                        }
+                    </div>
+                </div>
+
+                <!-- Missing Skills Summary -->
+                <div class="col-lg-5">
+                    <div class="cf-card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-serif mb-0"><i class="bi bi-exclamation-triangle me-1 text-warning"></i> Key Skills to Target</h5>
+                            <a asp-controller="SkillGap" asp-action="Index" class="small text-decoration-none">Detailed Gap</a>
+                        </div>
+
+                        @if (Model.KeyMissingSkills.Any())
+                        {
+                            <p class="text-muted small mb-3">High-priority competencies required for your #1 recommended career:</p>
+                            <div class="list-group list-group-flush">
+                                @foreach (var ms in Model.KeyMissingSkills)
+                                {
+                                    <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="fw-semibold small">@ms.SkillName</span>
+                                            <span class="badge @(ms.Priority == "High" ? "badge-required" : "bg-light text-dark border") small ms-1">
+                                                @ms.Priority Priority
+                                            </span>
+                                        </div>
+                                        <span class="small text-muted">Target: @ms.RequiredProficiency</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">Complete your profile to view customized skill gap analysis.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Roadmaps & Bookmarks Grid -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="cf-card p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-serif mb-0"><i class="bi bi-map me-1 text-primary"></i> Learning Roadmaps (@Model.ActiveRoadmaps.Count)</h5>
+                            <a asp-controller="Roadmap" asp-action="Index" class="small text-decoration-none">View All</a>
+                        </div>
+
+                        @if (Model.ActiveRoadmaps.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var rm in Model.ActiveRoadmaps.Take(3))
+                                {
+                                    var completedCount = rm.Milestones.Count(m => m.IsCompleted);
+                                    var totalCount = rm.Milestones.Count;
+                                    var pct = totalCount > 0 ? (int)Math.Round((double)completedCount / totalCount * 100) : 0;
+
+                                    <div class="list-group-item px-0">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <a asp-controller="Roadmap" asp-action="Details" asp-route-id="@rm.Id" class="fw-semibold text-primary text-decoration-none">
+                                                @rm.TargetRole
+                                            </a>
+                                            <span class="small text-muted">@completedCount/@totalCount Done</span>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: @pct%;"></div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">No active roadmaps generated yet. Select any career to generate a step-by-step roadmap.</p>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="cf-card p-4 h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="font-serif mb-0"><i class="bi bi-bookmark me-1 text-primary"></i> Bookmarked Roles (@Model.SavedCareers.Count)</h5>
+                            <a asp-controller="SavedCareer" asp-action="Index" class="small text-decoration-none">View All</a>
+                        </div>
+
+                        @if (Model.SavedCareers.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var sc in Model.SavedCareers.Take(3))
+                                {
+                                    <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a asp-controller="Career" asp-action="Details" asp-route-id="@sc.CareerId" class="fw-semibold text-primary text-decoration-none">
+                                                @sc.Career?.Title
+                                            </a>
+                                            <span class="text-muted small d-block">@sc.Career?.Category</span>
+                                        </div>
+                                        <a asp-controller="Career" asp-action="Details" asp-route-id="@sc.CareerId" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                            View
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted small mb-0">No careers bookmarked yet. Browse our catalogue to save roles of interest.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

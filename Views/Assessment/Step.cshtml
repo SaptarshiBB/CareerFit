@@ -1,0 +1,137 @@
+@model CareerFit.ViewModels.AssessmentWizardViewModel
+@{
+    ViewData["Title"] = $"Assessment: {Model.SectionTitle}";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Breadcrumb / Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <span class="badge bg-primary px-3 py-1 mb-1">Step @(Model.CurrentStepIndex + 1) of @Model.TotalSteps</span>
+                    <h2 class="font-serif mb-0">@Model.SectionTitle</h2>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted small">Progress: <strong>@Model.ProgressPercentage%</strong></span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="wizard-progress-bar">
+                <div class="wizard-progress-fill" style="width: @Model.ProgressPercentage%;"></div>
+            </div>
+
+            <!-- Form -->
+            <form asp-action="Step" method="post" id="assessmentForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="assessmentId" value="@Model.AssessmentId" />
+                <input type="hidden" name="stepIndex" value="@Model.CurrentStepIndex" />
+
+                @foreach (var q in Model.SectionQuestions)
+                {
+                    var answer = Model.Answers.GetValueOrDefault(q.Id);
+                    var selectedOptionIds = answer?.SelectedOptionIds.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+                    var selectedValues = answer?.SelectedValues.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? Array.Empty<string>();
+
+                    <div class="cf-card p-4 mb-4">
+                        <div class="mb-3">
+                            <span class="badge bg-light text-muted border small mb-2">Question @q.OrderNumber</span>
+                            <h5 class="font-serif mb-1">@q.QuestionText</h5>
+                            @if (!string.IsNullOrWhiteSpace(q.HelpText))
+                            {
+                                <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i> @q.HelpText</p>
+                            }
+                        </div>
+
+                        <!-- Render based on QuestionType -->
+                        @if (q.QuestionType == "SingleChoice")
+                        {
+                            <div class="mt-3">
+                                @foreach (var opt in q.Options)
+                                {
+                                    bool isChecked = selectedValues.Contains(opt.OptionValue) || selectedOptionIds.Contains(opt.Id.ToString());
+                                    <label class="option-card-label @(isChecked ? "border-primary" : "")">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="q_@q.Id" value="@opt.OptionValue" class="form-check-input me-3 option-card-input" @(isChecked ? "checked" : "") required="@q.IsRequired" />
+                                            <div class="option-card-content">
+                                                <div class="text-dark">@opt.OptionText</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                }
+                            </div>
+                        }
+                        else if (q.QuestionType == "MultiSelect")
+                        {
+                            <div class="mt-3">
+                                <div class="text-muted small mb-2"><i class="bi bi-check2-square me-1"></i> Select all options that apply:</div>
+                                @foreach (var opt in q.Options)
+                                {
+                                    bool isChecked = selectedValues.Contains(opt.OptionValue) || selectedOptionIds.Contains(opt.Id.ToString());
+                                    <label class="option-card-label @(isChecked ? "border-primary" : "")">
+                                        <div class="d-flex align-items-center">
+                                            <input type="checkbox" name="q_@q.Id" value="@opt.OptionValue" class="form-check-input me-3 option-card-input" @(isChecked ? "checked" : "") />
+                                            <div class="option-card-content">
+                                                <div class="text-dark">@opt.OptionText</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                }
+                            </div>
+                        }
+                        else if (q.QuestionType == "RatingScale")
+                        {
+                            <div class="mt-3">
+                                @foreach (var opt in q.Options)
+                                {
+                                    bool isChecked = (answer?.NumericScore != null && answer.NumericScore.ToString() == opt.OptionValue) ||
+                                                     selectedValues.Contains(opt.OptionValue);
+                                    <label class="option-card-label @(isChecked ? "border-primary" : "")">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="q_@q.Id" value="@opt.OptionValue" class="form-check-input me-3 option-card-input" @(isChecked ? "checked" : "") required="@q.IsRequired" />
+                                            <div class="option-card-content">
+                                                <div class="text-dark">@opt.OptionText</div>
+                                            </div>
+                                        </div>
+                                    </label>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Navigation Controls -->
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-color">
+                    @if (!Model.IsFirstStep)
+                    {
+                        <button type="submit" name="direction" value="prev" class="btn btn-outline-secondary px-4" formnovalidate>
+                            <i class="bi bi-arrow-left me-1"></i> Previous Step
+                        </button>
+                    }
+                    else
+                    {
+                        <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+                            Exit Assessment
+                        </a>
+                    }
+
+                    <div class="d-flex gap-2">
+                        @if (Model.IsLastStep)
+                        {
+                            <button type="submit" name="direction" value="next" class="btn btn-success px-4 py-2">
+                                <i class="bi bi-check2-circle me-1"></i> Submit & Compute Recommendations
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" name="direction" value="next" class="btn btn-primary px-4 py-2">
+                                Next Step <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

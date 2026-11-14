@@ -1,0 +1,74 @@
+@{
+    ViewData["Title"] = "How CareerFit Works - Methodology & Matching Engine";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="section-heading-eyebrow">Platform Architecture & Methodology</div>
+            <h1 class="display-5 font-serif mb-3">How CareerFit Delivers Career Clarity</h1>
+            <p class="lead text-muted mb-5">
+                A rigorous, transparent, rule-based approach to candidate profiling, skill benchmarking, and career path recommendation.
+            </p>
+
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">1. Holistic Candidate Profiling</h4>
+                <p class="text-muted">
+                    Career guidance begins with an accurate self-audit. In CareerFit, candidates register their verified academic credentials (degree, major, graduation year), total years of practical experience, and preferred working environment (remote, hybrid, or on-site). Users can catalog their technical proficiencies (from programming languages to cloud tools) and self-assessed workplace soft skills.
+                </p>
+            </div>
+
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">2. Multi-Dimensional 8-Stage Assessment</h4>
+                <p class="text-muted">
+                    Our questionnaire evaluates candidates across eight foundational dimensions:
+                </p>
+                <div class="row g-3 text-muted small">
+                    <div class="col-md-6"><strong>Section A:</strong> Educational Background</div>
+                    <div class="col-md-6"><strong>Section B:</strong> Technical Skills & Languages</div>
+                    <div class="col-md-6"><strong>Section C:</strong> Interpersonal & Soft Skills</div>
+                    <div class="col-md-6"><strong>Section D:</strong> Personal Core Interests</div>
+                    <div class="col-md-6"><strong>Section E:</strong> Problem-Solving & Algorithmic Comfort</div>
+                    <div class="col-md-6"><strong>Section F:</strong> Preferred Workplace Setup</div>
+                    <div class="col-md-6"><strong>Section G:</strong> Long-Term Career Goals</div>
+                    <div class="col-md-6"><strong>Section H:</strong> Cumulative Experience Level</div>
+                </div>
+            </div>
+
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">3. The Explainable Matching Formula</h4>
+                <p class="text-muted">
+                    Unlike unpredictable machine learning black boxes that cannot explain their conclusions, CareerFit implements an auditable weighted recommendation algorithm in C#:
+                </p>
+                <div class="p-3 bg-light rounded border my-3">
+                    <div class="fw-bold text-primary mb-1">Final Recommendation Score =</div>
+                    <div class="text-dark small">
+                        &bull; <strong>40%</strong> &times; Technical Skill Match (Required & Preferred competencies)<br/>
+                        &bull; <strong>25%</strong> &times; Sector Interest Match (Domain correlation)<br/>
+                        &bull; <strong>20%</strong> &times; Educational Qualification Match (Academic alignment)<br/>
+                        &bull; <strong>15%</strong> &times; Work Preference Match (Work environment and seniority)
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    All components are normalized between 0% and 100%, producing an objective rank of top matching career paths.
+                </p>
+            </div>
+
+            <div class="cf-card mb-4 p-4">
+                <h4 class="font-serif text-primary mb-3">4. Personalized Roadmaps & Gap Remediation</h4>
+                <p class="text-muted">
+                    A recommendation is only as valuable as the path to reach it. For every recommended or bookmarked career, CareerFit generates a structured 3-stage roadmap (Beginner, Intermediate, Advanced) with specific project capstones and measurable milestones that candidates can track as they build market-ready skills.
+                </p>
+            </div>
+
+            <div class="text-center pt-3">
+                <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary px-4 py-2">
+                    Begin Assessment Now
+                </a>
+                <a asp-controller="Career" asp-action="Index" class="btn btn-outline-primary px-4 py-2 ms-2">
+                    Explore All Careers
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

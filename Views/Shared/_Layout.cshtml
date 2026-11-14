@@ -1,0 +1,248 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CareerFit | Matching Candidates with Suitable Careers</title>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Bootstrap Icons (CDN with local icon fallback support) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <!-- Custom Fonts: Georgia / Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+    <!-- CareerFit Design System -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-careerfit">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center me-4" asp-controller="Home" asp-action="Index">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded me-2" style="width: 34px; height: 34px; font-weight: 700; font-family: var(--font-heading); font-size: 1.1rem;">
+                        CF
+                    </span>
+                    <div>
+                        <span class="navbar-brand-title">CareerFit</span>
+                        <span class="navbar-brand-tagline">Consultancy & Matching</span>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Career" asp-action="Index">Explore Careers</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="HowItWorks">How It Works</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-primary" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Assessment" asp-action="Index">
+                                    <i class="bi bi-clipboard2-check me-1"></i> Assessment
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Recommendation" asp-action="Index">
+                                    <i class="bi bi-stars me-1"></i> Matches
+                                </a>
+                            </li>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-semibold" asp-controller="Admin" asp-action="Index">
+                                        <i class="bi bi-shield-lock me-1"></i> Admin Portal
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Theme Toggle Button -->
+                        <button type="button" class="btn btn-outline-secondary btn-sm px-2 py-1 me-2" id="themeToggleBtn" title="Toggle dark/light mode" aria-label="Toggle dark/light theme">
+                            <i class="bi bi-moon-fill" id="themeIcon"></i>
+                        </button>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            var currentUser = await UserManager.GetUserAsync(User);
+                            var displayName = currentUser?.FullName ?? User.Identity?.Name ?? "Candidate";
+
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i>
+                                    <span>@displayName</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenuDropdown">
+                                    <li><h6 class="dropdown-header">Candidate Portal</h6></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person me-2"></i> My Profile</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2"></i> Dashboard Overview</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Assessment" asp-action="Index"><i class="bi bi-clipboard2-pulse me-2"></i> Career Assessment</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Recommendation" asp-action="Index"><i class="bi bi-bullseye me-2"></i> Career Recommendations</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SkillGap" asp-action="Index"><i class="bi bi-graph-up-arrow me-2"></i> Skill Gap Analysis</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Roadmap" asp-action="Index"><i class="bi bi-map me-2"></i> Career Roadmaps</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SavedCareer" asp-action="Index"><i class="bi bi-bookmark me-2"></i> Saved Careers</a></li>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><h6 class="dropdown-header text-danger">Administration</h6></li>
+                                        <li><a class="dropdown-item text-danger" asp-controller="Admin" asp-action="Index"><i class="bi bi-shield-check me-2"></i> Admin Dashboard</a></li>
+                                    }
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-2">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100 text-start">
+                                                <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-sm">Sign In</a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-primary btn-sm">Get Started</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Global Notifications / Alerts -->
+    <div class="container mt-3">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i> @TempData["InfoMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    <!-- Main Content Area -->
+    <main role="main" class="flex-grow-1">
+        @RenderBody()
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="footer-careerfit">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded me-2" style="width: 30px; height: 30px; font-weight: 700; font-family: var(--font-heading);">CF</span>
+                        <span class="footer-title mb-0">CareerFit</span>
+                    </div>
+                    <p class="text-muted small pe-lg-3">
+                        Matching Candidates with Suitable Careers. A data-driven, explainable career guidance and skills alignment platform engineered for aspiring and experienced professionals.
+                    </p>
+                    <div class="text-muted small">
+                        <i class="bi bi-shield-check text-success me-1"></i> Self-contained &bull; SQLite Persistence &bull; Rule-based AI Engine
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="footer-title">Platform</h6>
+                    <a asp-controller="Home" asp-action="Index" class="footer-link">Home</a>
+                    <a asp-controller="Career" asp-action="Index" class="footer-link">Explore Careers</a>
+                    <a asp-controller="Home" asp-action="HowItWorks" class="footer-link">How It Works</a>
+                    <a asp-controller="Home" asp-action="About" class="footer-link">About CareerFit</a>
+                    <a asp-controller="Career" asp-action="Compare" class="footer-link">Compare Careers</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Candidate Tools</h6>
+                    <a asp-controller="Assessment" asp-action="Index" class="footer-link">Career Assessment</a>
+                    <a asp-controller="Recommendation" asp-action="Index" class="footer-link">Smart Matching</a>
+                    <a asp-controller="SkillGap" asp-action="Index" class="footer-link">Skill Gap Analysis</a>
+                    <a asp-controller="Roadmap" asp-action="Index" class="footer-link">Learning Roadmaps</a>
+                    <a asp-controller="SavedCareer" asp-action="Index" class="footer-link">Saved Bookmarks</a>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="footer-title">Consultancy & Support</h6>
+                    <p class="text-muted small mb-2">
+                        Need advisory assistance or platform support?
+                    </p>
+                    <div class="text-muted small mb-1">
+                        <i class="bi bi-envelope me-2"></i> advisory@careerfit.com
+                    </div>
+                    <div class="text-muted small mb-3">
+                        <i class="bi bi-clock me-2"></i> Mon - Fri: 9:00 AM - 6:00 PM EST
+                    </div>
+                    <div class="badge bg-light text-dark border p-2 text-start w-100">
+                        <span class="fw-semibold d-block text-primary">Demo Administrator</span>
+                        <code class="small text-muted">admin@careerfit.com / Admin@CareerFit2026!</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-disclaimer">
+                <div class="row align-items-center">
+                    <div class="col-md-6 small text-muted">
+                        &copy; 2026 CareerFit Advisory Systems. All rights reserved.
+                    </div>
+                    <div class="col-md-6 small text-muted text-md-end mt-2 mt-md-0">
+                        <em>Notice: Compensation statistics are illustrative benchmarks for career evaluation and do not represent guaranteed wage offers.</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

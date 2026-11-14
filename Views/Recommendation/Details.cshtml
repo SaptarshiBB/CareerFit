@@ -1,0 +1,144 @@
+@model CareerFit.Services.CareerMatchResult
+@{
+    ViewData["Title"] = $"Recommendation Detail - {Model.Career.Title}";
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Recommendations</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Career.Title</li>
+        </ol>
+    </nav>
+
+    <div class="cf-card p-4 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <span class="badge-tag mb-2">@Model.Career.Category</span>
+                <h1 class="font-serif mb-2">@Model.Career.Title</h1>
+                <p class="text-muted small mb-0">@Model.Career.Summary</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary px-3 py-1 mb-1">Rank #@Model.Rank</span>
+                <div class="badge-score display-4">@Model.OverallScore.ToString("F0")%</div>
+                <span class="text-muted small d-block">Overall Compatibility</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <!-- Rationale -->
+            <div class="cf-card p-4 mb-4">
+                <h4 class="font-serif text-primary mb-3"><i class="bi bi-lightbulb me-2"></i> Algorithmic Explanation</h4>
+                <p class="text-muted" style="line-height: 1.7;">@Model.Explanation</p>
+            </div>
+
+            <!-- Actionable Suggestions -->
+            <div class="cf-card p-4 mb-4">
+                <h4 class="font-serif text-primary mb-3"><i class="bi bi-compass me-2"></i> Targeted Improvement Suggestions</h4>
+                <p class="text-muted" style="line-height: 1.7;">@Model.ImprovementSuggestions</p>
+            </div>
+
+            <!-- Skills Comparison -->
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="cf-card p-4 h-100">
+                        <h5 class="font-serif text-success mb-3"><i class="bi bi-check-circle me-1"></i> Matching Skills (@Model.MatchingSkills.Count)</h5>
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var s in Model.MatchingSkills)
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <span>@s.SkillName</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">@s.CandidateProficiency</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="cf-card p-4 h-100">
+                        <h5 class="font-serif text-danger mb-3"><i class="bi bi-exclamation-circle me-1"></i> Skills to Acquire (@Model.MissingSkills.Count)</h5>
+                        <ul class="list-group list-group-flush small">
+                            @foreach (var s in Model.MissingSkills)
+                            {
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                    <span>@s.SkillName</span>
+                                    <span class="badge @(s.Priority == "High" ? "badge-required" : "bg-light text-dark border")">@s.Priority Priority</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Component Scores -->
+            <div class="cf-card p-4 mb-4">
+                <h5 class="font-serif mb-3">Formula Components</h5>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Technical Skills (40%)</span>
+                        <span class="fw-semibold text-primary">@Model.TechnicalSkillScore.ToString("F0")%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: @Model.TechnicalSkillScore%;"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Interest Alignment (25%)</span>
+                        <span class="fw-semibold text-info">@Model.InterestScore.ToString("F0")%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" style="width: @Model.InterestScore%;"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Education Match (20%)</span>
+                        <span class="fw-semibold text-success">@Model.EducationScore.ToString("F0")%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: @Model.EducationScore%;"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small text-muted mb-1">
+                        <span>Work Preference (15%)</span>
+                        <span class="fw-semibold text-secondary">@Model.WorkPreferenceScore.ToString("F0")%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-secondary" style="width: @Model.WorkPreferenceScore%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="cf-card p-4">
+                <h5 class="font-serif mb-3">Next Actions</h5>
+                <div class="d-grid gap-2">
+                    <a asp-controller="Career" asp-action="Details" asp-route-id="@Model.Career.Id" class="btn btn-outline-primary btn-sm">
+                        View Full Career Profile
+                    </a>
+                    <a asp-controller="SkillGap" asp-action="Index" asp-route-careerId="@Model.Career.Id" class="btn btn-outline-primary btn-sm">
+                        Detailed Skill Gap Analysis
+                    </a>
+                    <form asp-controller="Roadmap" asp-action="Generate" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="careerId" value="@Model.Career.Id" />
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            Generate Learning Roadmap
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

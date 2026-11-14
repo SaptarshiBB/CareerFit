@@ -1,0 +1,202 @@
+@model CareerFit.ViewModels.SkillGapViewModel
+@{
+    ViewData["Title"] = "Skill Gap Analysis";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow">Gap Remediation & Diagnostics</div>
+            <h1 class="font-serif mb-1">Skill Gap Analysis</h1>
+            <p class="text-muted small mb-0">Compare your possessed competencies against prerequisites for any target career path.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-tools me-1"></i> Update Possessed Skills
+            </a>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Career Selector Dropdown -->
+    <div class="cf-card p-3 mb-4">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold mb-0">Select Target Career to Analyze:</label>
+            </div>
+            <div class="col-md-7">
+                <select name="careerId" class="form-select" onchange="this.form.submit()">
+                    @foreach (var c in Model.AvailableCareers)
+                    {
+                        if (Model.SelectedCareerId == c.Id)
+                        {
+                            <option value="@c.Id" selected>@c.Title (@c.Category)</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Id">@c.Title (@c.Category)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary btn-sm">Analyze</button>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.Analysis != null)
+    {
+        var analysis = Model.Analysis;
+
+        <!-- Summary Metric Card -->
+        <div class="cf-card p-4 mb-4">
+            <div class="row align-items-center g-4">
+                <div class="col-md-8">
+                    <span class="badge-tag mb-2">@analysis.Career.Category</span>
+                    <h3 class="font-serif mb-1">@analysis.Career.Title</h3>
+                    <p class="text-muted small mb-3">@analysis.Career.Summary</p>
+
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-semibold">Prerequisite Competency Match</span>
+                            <span class="fw-bold text-primary">@analysis.MatchPercentage%</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar @(analysis.MatchPercentage >= 70 ? "bg-success" : (analysis.MatchPercentage >= 40 ? "bg-primary" : "bg-warning"))" role="progressbar" style="width: @analysis.MatchPercentage%;" aria-valuenow="@analysis.MatchPercentage" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 text-center border-start-md border-color ps-md-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded border">
+                                <span class="d-block fs-3 fw-bold text-success font-serif">@analysis.PossessedSkillsCount</span>
+                                <span class="text-muted small">Skills Possessed</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded border">
+                                <span class="d-block fs-3 fw-bold text-danger font-serif">@analysis.MissingSkillsCount</span>
+                                <span class="text-muted small">Skills to Acquire</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Roadmap" asp-action="Generate" method="post" class="mt-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="careerId" value="@analysis.Career.Id" />
+                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-map me-1"></i> Generate Learning Roadmap
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Two-Column Comparison Grid -->
+        <div class="row g-4 mb-4">
+            <!-- Possessed Skills -->
+            <div class="col-lg-6">
+                <div class="cf-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-color">
+                        <h5 class="font-serif mb-0 text-success">
+                            <i class="bi bi-check-circle-fill me-1"></i> Possessed Competencies (@analysis.PossessedSkillsCount)
+                        </h5>
+                    </div>
+
+                    @if (analysis.PossessedSkills.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var s in analysis.PossessedSkills)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div>
+                                            <span class="fw-semibold">@s.SkillName</span>
+                                            <span class="badge bg-light text-muted border small ms-1">@s.Category</span>
+                                        </div>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                            Possessed &bull; @s.CandidateProficiency
+                                        </span>
+                                    </div>
+                                    <div class="small text-muted">@s.RecommendationNotes</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-muted small">
+                            <i class="bi bi-info-circle fs-3 d-block mb-2"></i>
+                            No matching competencies detected yet. Add skills in your candidate profile or assessment.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Missing Skills & Suggested Learning -->
+            <div class="col-lg-6">
+                <div class="cf-card p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-color">
+                        <h5 class="font-serif mb-0 text-danger">
+                            <i class="bi bi-exclamation-circle-fill me-1"></i> Competency Gaps to Bridge (@analysis.MissingSkillsCount)
+                        </h5>
+                    </div>
+
+                    @if (analysis.MissingSkills.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var s in analysis.MissingSkills)
+                            {
+                                <div class="list-group-item px-0">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <div>
+                                            <span class="fw-semibold">@s.SkillName</span>
+                                            <span class="badge bg-light text-muted border small ms-1">@s.Category</span>
+                                        </div>
+                                        <span class="badge @(s.Priority == "High" ? "badge-required" : "bg-light text-dark border") small">
+                                            @s.Priority Priority
+                                        </span>
+                                    </div>
+                                    <div class="small text-muted">@s.RecommendationNotes</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-4 text-center text-success small">
+                            <i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+                            Congratulations! You meet all listed prerequisites for this career pathway.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Suggested Learning Priorities -->
+        <div class="cf-card p-4 mb-4">
+            <h5 class="font-serif text-primary mb-3"><i class="bi bi-lightbulb me-2"></i> Targeted Remediation Roadmap</h5>
+            @if (analysis.SuggestedLearningPath.Any())
+            {
+                <ol class="list-group list-group-numbered list-group-flush small">
+                    @foreach (var step in analysis.SuggestedLearningPath)
+                    {
+                        <li class="list-group-item px-0 text-muted">
+                            <span class="text-dark fw-semibold">@step</span>
+                        </li>
+                    }
+                </ol>
+            }
+            else
+            {
+                <p class="text-muted small mb-0">No active skill gaps identified for this role.</p>
+            }
+        </div>
+    }
+</div>

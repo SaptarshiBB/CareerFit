@@ -1,0 +1,208 @@
+@model CareerFit.ViewModels.CareerCompareViewModel
+@{
+    ViewData["Title"] = "Side-by-Side Career Comparison";
+}
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow">Evaluation Tool</div>
+            <h1 class="font-serif mb-1">Career Comparison Matrix</h1>
+            <p class="text-muted small mb-0">Evaluate two distinct professional profiles side by side across skills, compensation, and personal compatibility.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Careers
+            </a>
+        </div>
+    </div>
+
+    <!-- Career Selection Selectors -->
+    <div class="cf-card p-3 mb-4">
+        <form method="get" asp-action="Compare" class="row g-3 align-items-center">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold">First Career Pathway</label>
+                <select name="career1Id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Choose First Role --</option>
+                    @foreach (var c in Model.AvailableCareers)
+                    {
+                        if (Model.Career1Id == c.Id)
+                        {
+                            <option value="@c.Id" selected>@c.Title (@c.Category)</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Id">@c.Title (@c.Category)</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2 text-center text-muted fw-bold pt-md-4">
+                <span class="badge bg-light text-dark border px-3 py-2">VS</span>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold">Second Career Pathway</label>
+                <select name="career2Id" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Choose Second Role --</option>
+                    @foreach (var c in Model.AvailableCareers)
+                    {
+                        if (Model.Career2Id == c.Id)
+                        {
+                            <option value="@c.Id" selected>@c.Title (@c.Category)</option>
+                        }
+                        else
+                        {
+                            <option value="@c.Id">@c.Title (@c.Category)</option>
+                        }
+                    }
+                </select>
+            </div>
+        </form>
+    </div>
+
+    @if (Model.Career1 != null && Model.Career2 != null)
+    {
+        <!-- Comparison Table Matrix -->
+        <div class="cf-card overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-careerfit mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Dimension</th>
+                            <th style="width: 40%;" class="text-primary fs-6 font-serif">@Model.Career1.Title</th>
+                            <th style="width: 40%;" class="text-primary fs-6 font-serif">@Model.Career2.Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Personal Match Score (if user is authenticated) -->
+                        @if (Model.Match1 != null || Model.Match2 != null)
+                        {
+                            <tr class="table-light">
+                                <td class="fw-bold">Personal Match Score</td>
+                                <td>
+                                    <span class="fs-4 fw-bold text-primary font-serif">@(Model.Match1?.OverallScore.ToString("F0") ?? "N/A")%</span>
+                                    <span class="text-muted small d-block">40% Tech &bull; 25% Int &bull; 20% Edu &bull; 15% Work</span>
+                                </td>
+                                <td>
+                                    <span class="fs-4 fw-bold text-primary font-serif">@(Model.Match2?.OverallScore.ToString("F0") ?? "N/A")%</span>
+                                    <span class="text-muted small d-block">40% Tech &bull; 25% Int &bull; 20% Edu &bull; 15% Work</span>
+                                </td>
+                            </tr>
+                        }
+
+                        <!-- Category -->
+                        <tr>
+                            <td class="fw-bold">Category</td>
+                            <td><span class="badge-tag">@Model.Career1.Category</span></td>
+                            <td><span class="badge-tag">@Model.Career2.Category</span></td>
+                        </tr>
+
+                        <!-- Summary -->
+                        <tr>
+                            <td class="fw-bold">Role Summary</td>
+                            <td class="text-muted small">@Model.Career1.Summary</td>
+                            <td class="text-muted small">@Model.Career2.Summary</td>
+                        </tr>
+
+                        <!-- Benchmark Salary -->
+                        <tr>
+                            <td class="fw-bold">Illustrative Compensation</td>
+                            <td>
+                                <span class="fw-bold text-primary">$@Model.Career1.SalaryMin.ToString("N0") - $@Model.Career1.SalaryMax.ToString("N0")</span>
+                                <span class="text-muted small d-block">USD Gross Benchmark / yr</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary">$@Model.Career2.SalaryMin.ToString("N0") - $@Model.Career2.SalaryMax.ToString("N0")</span>
+                                <span class="text-muted small d-block">USD Gross Benchmark / yr</span>
+                            </td>
+                        </tr>
+
+                        <!-- Experience Level & Work Environment -->
+                        <tr>
+                            <td class="fw-bold">Experience & Environment</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@Model.Career1.ExperienceLevel</span>
+                                <span class="badge bg-light text-dark border ms-1">@Model.Career1.WorkEnvironment</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">@Model.Career2.ExperienceLevel</span>
+                                <span class="badge bg-light text-dark border ms-1">@Model.Career2.WorkEnvironment</span>
+                            </td>
+                        </tr>
+
+                        <!-- Required Education -->
+                        <tr>
+                            <td class="fw-bold">Required Education</td>
+                            <td class="small">@Model.Career1.RequiredEducation</td>
+                            <td class="small">@Model.Career2.RequiredEducation</td>
+                        </tr>
+
+                        <!-- Key Prerequisites -->
+                        <tr>
+                            <td class="fw-bold">Core Skills</td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var cs in Model.Career1.CareerSkills)
+                                    {
+                                        <span class="badge @(cs.IsRequired ? "badge-required" : "bg-light text-muted border") small">
+                                            @cs.Skill?.Name
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var cs in Model.Career2.CareerSkills)
+                                    {
+                                        <span class="badge @(cs.IsRequired ? "badge-required" : "bg-light text-muted border") small">
+                                            @cs.Skill?.Name
+                                        </span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Responsibilities -->
+                        <tr>
+                            <td class="fw-bold">Key Responsibilities</td>
+                            <td class="small text-muted" style="white-space: pre-line;">@Model.Career1.Responsibilities</td>
+                            <td class="small text-muted" style="white-space: pre-line;">@Model.Career2.Responsibilities</td>
+                        </tr>
+
+                        <!-- Growth Opportunities -->
+                        <tr>
+                            <td class="fw-bold">Growth Opportunities</td>
+                            <td class="small text-muted">@Model.Career1.GrowthOpportunities</td>
+                            <td class="small text-muted">@Model.Career2.GrowthOpportunities</td>
+                        </tr>
+
+                        <!-- Actions -->
+                        <tr>
+                            <td class="fw-bold">Actions</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@Model.Career1.Id" class="btn btn-primary btn-sm">
+                                    View Full @Model.Career1.Title
+                                </a>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@Model.Career2.Id" class="btn btn-primary btn-sm">
+                                    View Full @Model.Career2.Title
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="cf-card p-5 text-center my-4">
+            <i class="bi bi-columns-gap text-muted fs-1 mb-2 d-block"></i>
+            <h4 class="font-serif">Select Two Careers to Compare</h4>
+            <p class="text-muted small">Choose any two roles from the dropdown selectors above to generate a comprehensive comparison matrix.</p>
+        </div>
+    }
+</div>

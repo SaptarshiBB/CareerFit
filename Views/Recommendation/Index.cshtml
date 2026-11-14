@@ -1,0 +1,151 @@
+@model List<CareerFit.Services.CareerMatchResult>
+@{
+    ViewData["Title"] = "Career Recommendations";
+    bool hasSufficient = (bool)(ViewBag.HasSufficientData ?? false);
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow">Explainable Matching Engine</div>
+            <h1 class="font-serif mb-1">Career Recommendations</h1>
+            <p class="text-muted small mb-0">Rigorously calculated using: 40% Skills, 25% Interests, 20% Education, 15% Work Preferences.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-controller="Assessment" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-arrow-repeat me-1"></i> Retake Assessment
+            </a>
+            <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-person me-1"></i> Update Profile
+            </a>
+        </div>
+    </div>
+
+    @if (!hasSufficient)
+    {
+        <!-- Prompt to complete profile or assessment -->
+        <div class="cf-card p-5 text-center my-4">
+            <div class="text-warning mb-3" style="font-size: 3rem;">
+                <i class="bi bi-clipboard2-x"></i>
+            </div>
+            <h3 class="font-serif mb-2">Insufficient Information for Accurate Matching</h3>
+            <p class="text-muted small mb-4 mx-auto" style="max-width: 580px;">
+                Our explainable recommendation engine requires baseline data regarding your academic background, technical skills, and career preferences to formulate legitimate recommendations.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary px-4">
+                    <i class="bi bi-clipboard2-check me-2"></i> Take 8-Step Assessment
+                </a>
+                <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-primary px-4">
+                    <i class="bi bi-person-gear me-2"></i> Complete Profile Information
+                </a>
+            </div>
+        </div>
+    }
+    else if (!Model.Any())
+    {
+        <div class="cf-card p-5 text-center my-4">
+            <h4 class="font-serif">No Career Recommendations Calculated</h4>
+            <p class="text-muted small mb-3">Please start your career assessment questionnaire to generate custom results.</p>
+            <a asp-controller="Assessment" asp-action="Index" class="btn btn-primary btn-sm">Start Assessment</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var rec in Model)
+            {
+                <div class="col-12">
+                    <div class="cf-card p-4">
+                        <div class="row g-4 align-items-center">
+                            <!-- Left: Rank and Overall Score -->
+                            <div class="col-lg-3 col-md-4 text-center border-end-md border-color pe-md-4">
+                                <span class="badge @(rec.Rank <= 3 ? "bg-primary" : "bg-light text-muted border") px-3 py-1 mb-2">
+                                    Rank #@rec.Rank
+                                </span>
+                                <div class="badge-score display-5">
+                                    @rec.OverallScore.ToString("F0")%
+                                </div>
+                                <span class="text-muted small d-block mb-3">Weighted Match</span>
+
+                                <div class="d-grid gap-2">
+                                    <a asp-controller="Career" asp-action="Details" asp-route-id="@rec.Career.Id" class="btn btn-primary btn-sm">
+                                        View Full Career
+                                    </a>
+                                    <a asp-controller="SkillGap" asp-action="Index" asp-route-careerId="@rec.Career.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-graph-up-arrow me-1"></i> Skill Gap Analysis
+                                    </a>
+                                    <form asp-controller="Roadmap" asp-action="Generate" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="careerId" value="@rec.Career.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                                            <i class="bi bi-map me-1"></i> Learning Roadmap
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Right: Explanation, Score Breakdown & Suggestions -->
+                            <div class="col-lg-9 col-md-8 ps-md-4">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="badge-tag mb-1">@rec.Career.Category</span>
+                                        <h4 class="font-serif mb-1">@rec.Career.Title</h4>
+                                    </div>
+                                    <span class="fw-bold text-primary">
+                                        $@rec.Career.SalaryMin.ToString("N0") - $@rec.Career.SalaryMax.ToString("N0") <span class="small text-muted fw-normal">USD/yr</span>
+                                    </span>
+                                </div>
+
+                                <!-- Explanation Box -->
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="fw-semibold text-primary small d-block mb-1"><i class="bi bi-check2-circle me-1"></i> Recommendation Rationale:</span>
+                                    <p class="text-muted small mb-0">@rec.Explanation</p>
+                                </div>
+
+                                <!-- Actionable Suggestions Box -->
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="fw-semibold text-primary small d-block mb-1"><i class="bi bi-arrow-up-right-circle me-1"></i> Improvement Suggestions:</span>
+                                    <p class="text-muted small mb-0">@rec.ImprovementSuggestions</p>
+                                </div>
+
+                                <!-- 4 Components Breakdown -->
+                                <div class="row g-2 pt-2 border-top border-subtle">
+                                    <div class="col-sm-3 col-6">
+                                        <span class="text-muted small d-block">Tech Match (40%)</span>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: @rec.TechnicalSkillScore%;"></div>
+                                        </div>
+                                        <span class="small fw-semibold">@rec.TechnicalSkillScore.ToString("F0")%</span>
+                                    </div>
+                                    <div class="col-sm-3 col-6">
+                                        <span class="text-muted small d-block">Interest Match (25%)</span>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-info" style="width: @rec.InterestScore%;"></div>
+                                        </div>
+                                        <span class="small fw-semibold">@rec.InterestScore.ToString("F0")%</span>
+                                    </div>
+                                    <div class="col-sm-3 col-6">
+                                        <span class="text-muted small d-block">Education (20%)</span>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: @rec.EducationScore%;"></div>
+                                        </div>
+                                        <span class="small fw-semibold">@rec.EducationScore.ToString("F0")%</span>
+                                    </div>
+                                    <div class="col-sm-3 col-6">
+                                        <span class="text-muted small d-block">Work Fit (15%)</span>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-secondary" style="width: @rec.WorkPreferenceScore%;"></div>
+                                        </div>
+                                        <span class="small fw-semibold">@rec.WorkPreferenceScore.ToString("F0")%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,193 @@
+@model CareerFit.ViewModels.AssessmentResultViewModel
+@{
+    ViewData["Title"] = "Assessment Results & Top Recommendations";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-color">
+        <div>
+            <div class="section-heading-eyebrow">Assessment Results</div>
+            <h1 class="font-serif mb-1">Your Personalized Career Recommendations</h1>
+            <p class="text-muted small mb-0">
+                Evaluation calculated on @(Model.Assessment.CompletedAt?.ToString("MMMM dd, yyyy") ?? DateTime.UtcNow.ToString("MMMM dd, yyyy")) based on our 4-dimension weighted algorithm.
+            </p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a asp-action="Retake" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-repeat me-1"></i> Retake Assessment
+            </a>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Go to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Algorithm Explanation Banner -->
+    <div class="cf-card p-3 mb-4 bg-light border">
+        <div class="d-flex align-items-center">
+            <div class="me-3 fs-3 text-primary"><i class="bi bi-award-fill"></i></div>
+            <div class="small">
+                <div class="fw-semibold text-primary">Weighted Scoring Methodology Applied:</div>
+                <div class="text-muted">
+                    Final Score = (40% Technical Skills) + (25% Stated Interests) + (20% Academic Alignment) + (15% Work Preference). Scores are fully normalized between 0% and 100%.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 Recommended Careers -->
+    <h3 class="font-serif mb-3">Top 5 Recommended Pathways</h3>
+    <div class="row g-4 mb-5">
+        @foreach (var rec in Model.TopRecommendations)
+        {
+            <div class="col-12">
+                <div class="cf-card p-4">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-lg-3 col-md-4 text-center border-end-md border-color pe-md-4">
+                            <span class="badge bg-primary px-3 py-1 mb-2">Rank #@rec.Rank</span>
+                            <div class="font-serif fw-bold display-5 text-primary">
+                                @rec.OverallScore.ToString("F0")%
+                            </div>
+                            <span class="text-muted small d-block mb-3">Overall Match Score</span>
+
+                            <div class="d-grid gap-2">
+                                <a asp-controller="Career" asp-action="Details" asp-route-id="@rec.Career.Id" class="btn btn-primary btn-sm">
+                                    View Full Career
+                                </a>
+                                <a asp-controller="SkillGap" asp-action="Index" asp-route-careerId="@rec.Career.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> Skill Gap
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-9 col-md-8 ps-md-4">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="badge-tag mb-1">@rec.Career.Category</span>
+                                    <h4 class="font-serif mb-1">@rec.Career.Title</h4>
+                                </div>
+                                <span class="fw-bold text-primary">
+                                    $@rec.Career.SalaryMin.ToString("N0") - $@rec.Career.SalaryMax.ToString("N0") <span class="small text-muted fw-normal">USD/yr</span>
+                                </span>
+                            </div>
+
+                            <!-- Explainability Rationale -->
+                            <div class="p-3 bg-light rounded border mb-3">
+                                <span class="fw-semibold small text-primary d-block mb-1"><i class="bi bi-lightbulb me-1"></i> Why this role fits you:</span>
+                                <p class="text-muted small mb-0">@rec.Explanation</p>
+                            </div>
+
+                            <!-- Component Score Breakdown Bars -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-3 col-6">
+                                    <span class="text-muted small d-block">Tech Match (40%)</span>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" style="width: @rec.TechnicalSkillScore%;"></div>
+                                    </div>
+                                    <span class="small fw-semibold">@rec.TechnicalSkillScore.ToString("F0")%</span>
+                                </div>
+                                <div class="col-sm-3 col-6">
+                                    <span class="text-muted small d-block">Interest Match (25%)</span>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-info" style="width: @rec.InterestScore%;"></div>
+                                    </div>
+                                    <span class="small fw-semibold">@rec.InterestScore.ToString("F0")%</span>
+                                </div>
+                                <div class="col-sm-3 col-6">
+                                    <span class="text-muted small d-block">Education (20%)</span>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: @rec.EducationScore%;"></div>
+                                    </div>
+                                    <span class="small fw-semibold">@rec.EducationScore.ToString("F0")%</span>
+                                </div>
+                                <div class="col-sm-3 col-6">
+                                    <span class="text-muted small d-block">Work Fit (15%)</span>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar bg-secondary" style="width: @rec.WorkPreferenceScore%;"></div>
+                                    </div>
+                                    <span class="small fw-semibold">@rec.WorkPreferenceScore.ToString("F0")%</span>
+                                </div>
+                            </div>
+
+                            <!-- Skills Breakdown & Roadmap Action -->
+                            <div class="d-flex flex-wrap justify-content-between align-items-center pt-2 border-top border-subtle">
+                                <div class="small">
+                                    <span class="text-success fw-semibold me-2">
+                                        <i class="bi bi-check-circle me-1"></i> @rec.MatchingSkills.Count Matching Skills
+                                    </span>
+                                    <span class="text-danger fw-semibold">
+                                        <i class="bi bi-exclamation-circle me-1"></i> @rec.MissingSkills.Count Skills to Acquire
+                                    </span>
+                                </div>
+
+                                <form asp-controller="Roadmap" asp-action="Generate" method="post" class="mt-2 mt-sm-0">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="careerId" value="@rec.Career.Id" />
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-map me-1"></i> Generate Learning Roadmap
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Comparative Radar Chart -->
+    <div class="cf-card p-4 mb-4">
+        <h4 class="font-serif text-primary mb-3"><i class="bi bi-diagram-3 me-2"></i> Comparative Competency Breakdown</h4>
+        <div style="height: 320px;">
+            <canvas id="recommendationsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('recommendationsChart');
+            if (!ctx) return;
+
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopRecommendations.Select(r => r.Career.Title)));
+            const techScores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopRecommendations.Select(r => r.TechnicalSkillScore)));
+            const overallScores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TopRecommendations.Select(r => r.OverallScore)));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Overall Match Score (%)',
+                            data: overallScores,
+                            backgroundColor: '#172B4D',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Technical Skill Match (%)',
+                            data: techScores,
+                            backgroundColor: '#496A91',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function (value) { return value + '%'; }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
